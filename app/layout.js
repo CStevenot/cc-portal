@@ -28,6 +28,9 @@ export default function RootLayout({ children }) {
                   afterSelectOrganizationUrl="/"
                   appearance={{ elements: { rootBox: "orgswitcher" } }}
                 />
+                <Link href="/availability" className="navlink">
+                  Availability
+                </Link>
                 <Link href="/account" className="navlink">
                   Account Settings
                 </Link>
