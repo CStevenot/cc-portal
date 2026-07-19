@@ -1,7 +1,9 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 // Everything except the sign-in flow requires authentication.
-const isPublicRoute = createRouteMatcher(["/sign-in(.*)"]);
+// /api/agent/* is the exception: Retell calls it server-to-server with no session,
+// so it authenticates itself (Retell signature + live call verification) instead.
+const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/api/agent(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (!isPublicRoute(req)) {
