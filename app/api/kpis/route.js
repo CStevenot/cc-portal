@@ -1,4 +1,5 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
+import { planAllowsRecordings } from "../../plans";
 
 // Auth-gated, org-scoped KPIs. The signed-in user's ACTIVE organization determines
 // which Retell agents' calls they can see. Per-org config lives in Clerk org
@@ -81,6 +82,10 @@ export async function GET() {
           textConsent,
           secs: Math.round(s),
           outcome: isAppt ? "Booked" : isLead ? "Lead captured" : s <= 8 ? "No info given" : "Handled",
+          callId: c.call_id || null,
+          // Whether a recording exists at all — the actual audio is only ever
+          // served through /api/recording/[callId], never as a raw URL.
+          hasRecording: !!(c.recording_url || c.scrubbed_recording_url),
         });
     }
     const answeredCalls = calls.filter((c) => durSec(c) > 8).length;
@@ -88,6 +93,8 @@ export async function GET() {
       plan,
       included,
       businessName,
+      // Drives the dashboard: true = play buttons active, false = grayed + upsell
+      canPlayRecordings: planAllowsRecordings(plan),
       calls: answeredCalls,
       minutesUsed: Math.round(totalSec / 60),
       leads,
