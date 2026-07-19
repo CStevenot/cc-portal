@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 
 const COLS = [
   { k: "ts", label: "Date & Time" },
+  { k: "_play", label: "Recording", ctr: true },
   { k: "name", label: "Name" },
   { k: "callerId", label: "Caller ID" },
   { k: "callback", label: "Phone Provided" },
@@ -53,6 +54,8 @@ export default function Dashboard() {
   const [sort, setSort] = useState({ k: "ts", dir: -1 });
   const [prefs, setPrefs] = useState({ order: COLKEYS.slice(), hidden: [] });
   const [cfgOpen, setCfgOpen] = useState(false);
+  const [playingId, setPlayingId] = useState(null);
+  const [showUpsell, setShowUpsell] = useState(false);
 
   useEffect(() => setPrefs(loadPrefs()), []);
   useEffect(() => {
@@ -97,6 +100,9 @@ export default function Dashboard() {
       email: r.email || "",
       secs: r.secs || 0,
       outcome: r.outcome || "",
+      callId: r.callId || null,
+      hasRecording: !!r.hasRecording,
+      _play: r.hasRecording ? "recording" : "",
     }));
     const ql = q.trim().toLowerCase();
     const filtered = base.filter(
@@ -128,9 +134,37 @@ export default function Dashboard() {
   const inc = data.included || 500;
   const used = data.minutesUsed || 0;
 
+  const canPlay = !!data.canPlayRecordings;
+
   const cell = (r, k) => {
     if (k === "ts") return fmtTime(r) || "—";
     if (k === "secs") return fmt(r.secs);
+    if (k === "_play") {
+      if (!r.hasRecording || !r.callId) return <span className="ic mute">—</span>;
+      // Starter: grayed lock that sells the upgrade instead of playing.
+      if (!canPlay)
+        return (
+          <button
+            className="playbtn locked"
+            title="Play recordings with Pro — hear exactly how your calls were handled."
+            aria-label="Upgrade to Pro to play recordings"
+            onClick={() => setShowUpsell(true)}
+          >
+            🔒
+          </button>
+        );
+      const isOpen = playingId === r.callId;
+      return (
+        <button
+          className={"playbtn" + (isOpen ? " on" : "")}
+          title={isOpen ? "Hide player" : "Play recording"}
+          aria-label={isOpen ? "Hide player" : "Play recording"}
+          onClick={() => setPlayingId(isOpen ? null : r.callId)}
+        >
+          {isOpen ? "✕" : "▶"}
+        </button>
+      );
+    }
     if (k === "_match")
       return r._match === "match" ? <span className="ic ok">✓</span>
         : r._match === "mismatch" ? <span className="ic warn">⚠</span>
@@ -166,6 +200,26 @@ export default function Dashboard() {
           <span>{inc - used >= 0 ? inc - used + " left" : used - inc + " over"} · resets monthly</span>
         </div>
       </div>
+
+      {showUpsell && (
+        <div className="upsell">
+          <div>
+            <strong>Hear every call on Pro.</strong>
+            <p>
+              Play back any recording to hear exactly how your AI handled the call — great for coaching, verifying
+              details, and settling questions about what was said.
+            </p>
+          </div>
+          <div className="upsellacts">
+            <a className="btn" href="https://www.client-connected.com/pricing" target="_blank" rel="noopener noreferrer">
+              See Pro plans
+            </a>
+            <button className="btn ghost" onClick={() => setShowUpsell(false)}>
+              Not now
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="sec">
         <div className="sechead">
@@ -215,11 +269,31 @@ export default function Dashboard() {
             </thead>
             <tbody>
               {rows.map((r, idx) => (
-                <tr key={idx}>
-                  {visible.map((k) => (
-                    <td key={k} className={colDef(k).ctr ? "ctr" : ""}>{cell(r, k)}</td>
-                  ))}
-                </tr>
+                <Fragment key={idx}>
+                  <tr>
+                    {visible.map((k) => (
+                      <td key={k} className={colDef(k).ctr ? "ctr" : ""}>{cell(r, k)}</td>
+                    ))}
+                  </tr>
+                  {canPlay && playingId && playingId === r.callId && (
+                    <tr className="playrow">
+                      <td colSpan={visible.length}>
+                        <div className="player">
+                          <span className="plabel">
+                            {r.name ? `Call with ${r.name}` : "Call recording"} · {fmtTime(r)}
+                          </span>
+                          {/* Audio is streamed through our API — the Retell URL is never exposed */}
+                          <audio
+                            controls
+                            autoPlay
+                            preload="none"
+                            src={`/api/recording/${encodeURIComponent(r.callId)}`}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               ))}
             </tbody>
           </table>
