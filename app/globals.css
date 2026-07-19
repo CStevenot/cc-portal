@@ -80,6 +80,25 @@ td.ctr, th.ctr { text-align: center; }
 .accountwrap { padding-top: 30px; }
 .pagetitle { font-size: 22px; } .pagesub { color: var(--mute); font-weight: 600; margin: 4px 0 20px; }
 
+/* ---- Call recording playback ---- */
+.playbtn { background: #0a1a30; border: 1px solid var(--line); color: var(--cyan); border-radius: 999px; width: 30px; height: 30px; font-size: 12px; cursor: pointer; line-height: 1; display: inline-flex; align-items: center; justify-content: center; transition: all .15s ease; }
+.playbtn:hover { border-color: var(--cyan); background: rgba(34,211,238,.12); }
+.playbtn.on { background: var(--cyan); color: #0b2141; border-color: var(--cyan); }
+/* Starter: visibly present but locked — the point is that they see what they're missing */
+.playbtn.locked { color: var(--mute); opacity: .45; cursor: pointer; }
+.playbtn.locked:hover { opacity: .85; border-color: var(--amber); color: var(--amber); background: rgba(245,158,66,.1); }
+
+.playrow > td { padding: 0 6px 12px; border-bottom: 1px solid var(--line); }
+.player { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; background: #0a1a30; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.plabel { color: var(--mute); font-size: 13px; font-weight: 700; }
+.player audio { height: 34px; flex: 1; min-width: 240px; }
+
+.upsell { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; background: linear-gradient(90deg, rgba(34,211,238,.10), rgba(34,211,238,.02)); border: 1px solid var(--cyan); border-radius: 16px; padding: 18px 22px; margin-bottom: 22px; }
+.upsell strong { font-size: 15px; }
+.upsell p { color: var(--mute); font-size: 13px; font-weight: 600; line-height: 1.5; margin-top: 4px; max-width: 620px; }
+.upsellacts { display: flex; gap: 10px; align-items: center; }
+.upsellacts .btn { text-decoration: none; display: inline-flex; align-items: center; }
+
 /* ---- Availability ---- */
 .avsec { padding: 6px 22px 22px; }
 .hint { color: var(--mute); font-size: 13px; font-weight: 600; margin-bottom: 12px; }
