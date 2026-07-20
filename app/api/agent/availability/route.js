@@ -154,8 +154,14 @@ export async function POST(req) {
   const { agentId, callId, day, date, count } = extract(body);
   if (!agentId) return Response.json({ error: "missing_agent_id" }, { status: 400 });
 
+  // call_id is REQUIRED. It was previously optional, which meant the layer-2 check
+  // below was skipped entirely for any request that simply omitted it — i.e. this
+  // endpoint had no effective authentication at all. Confirmed 2026-07-20 by an
+  // anonymous POST carrying only agent_id, which reached org lookup.
+  if (!callId) return Response.json({ error: "missing_call_id" }, { status: 401 });
+
   // Layer 2 — prove this is a real call on our account for this agent.
-  if (callId) {
+  {
     const r = await fetch(`https://api.retellai.com/v2/get-call/${encodeURIComponent(callId)}`, {
       headers: { Authorization: `Bearer ${key}` },
       cache: "no-store",
