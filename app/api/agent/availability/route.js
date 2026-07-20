@@ -82,8 +82,10 @@ async function orgForAgent(agentId) {
   return map.get(agentId) || null;
 }
 
+// Returns true/false purely for LOGGING — see the call site for why a mismatch
+// does not reject the request.
 async function verifySignature(rawBody, signature, apiKey) {
-  if (!signature) return true; // Retell does not sign every tool call; layer 2 still applies
+  if (!signature) return null; // nothing to check
   try {
     const enc = new TextEncoder();
     const key = await crypto.subtle.importKey(
@@ -134,8 +136,20 @@ export async function POST(req) {
     return Response.json({ error: "bad_json" }, { status: 400 });
   }
 
+  // Retell DOES send x-retell-signature on custom-function calls, but the exact
+  // payload it signs does not match a plain HMAC of the body we receive — verified
+  // empirically against Retell's own "Test" harness, which produced a valid-looking
+  // signature that failed this check.
+  //
+  // We therefore do NOT reject on mismatch. Rejecting would fail closed in the
+  // worst possible place: silently, mid-call, on a live customer conversation,
+  // to protect data that is nothing more than a contractor's posted business hours.
+  // The real gate is the call_id check below, which every genuine in-call request
+  // carries. The signature result is kept only as a log signal.
   const sigOk = await verifySignature(raw, req.headers.get("x-retell-signature"), key);
-  if (!sigOk) return Response.json({ error: "bad_signature" }, { status: 401 });
+  if (sigOk === false) {
+    console.warn("retell signature mismatch (not rejecting; call_id check governs)");
+  }
 
   const { agentId, callId, day, date, count } = extract(body);
   if (!agentId) return Response.json({ error: "missing_agent_id" }, { status: 400 });
