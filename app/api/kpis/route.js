@@ -26,7 +26,7 @@ export async function GET() {
   const businessName = meta.businessName || org.name;
 
   try {
-    const r = await fetch("https://api.retellai.com/v2/list-calls", {
+    const r = await fetch("https://api.retellai.com/v3/list-calls", {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({ limit: 500, sort_order: "descending" }),
@@ -34,7 +34,12 @@ export async function GET() {
     if (!r.ok) return Response.json({ error: "Retell API error", status: r.status }, { status: 502 });
     let calls = await r.json();
     if (!Array.isArray(calls)) calls = calls.items || calls.calls || [];
-    if (agentIds.length) calls = calls.filter((c) => agentIds.includes(c.agent_id));
+    // Fail closed: an org with no agents configured must see NOTHING, not everything.
+    // Mirrors the guard in /api/recording/[callId]. Previously this filter was simply
+    // skipped when agentIds was empty, which would have shown that org every call on
+    // the entire Retell account.
+    if (!agentIds.length) return Response.json({ error: "no_agents" }, { status: 403 });
+    calls = calls.filter((c) => agentIds.includes(c.agent_id));
 
     const durSec = (c) => {
       if (c.duration_ms) return c.duration_ms / 1000;
