@@ -13,6 +13,9 @@ body { background: linear-gradient(180deg, var(--navy), var(--navy2)); color: va
 .topright { display: flex; align-items: center; gap: 16px; }
 .navlink { color: var(--mute); font-weight: 700; font-size: 13px; text-decoration: none; }
 .navlink:hover { color: var(--white); }
+.orgswitcher .cl-organizationSwitcherTrigger,
+.orgswitcher .cl-organizationSwitcherTrigger * { color: var(--white) !important; }
+.orgswitcher .cl-organizationSwitcherTrigger:hover { background: rgba(255,255,255,.06) !important; }
 
 .wrap { max-width: 1080px; margin: 0 auto; padding: 26px 28px; }
 .plan { display: flex; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; align-items: center; }
