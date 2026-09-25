@@ -5,11 +5,14 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 // so it authenticates itself (Retell signature + live call verification) instead.
 // /shopify and /api/shopify/* run inside Shopify admin or are called by Shopify/Retell;
 // each authenticates itself (session token, webhook HMAC, or Retell signature).
+// /api/cron/* checks CRON_SECRET. /privacy is the public privacy policy.
 const isPublicRoute = createRouteMatcher([
   "/sign-in(.*)",
   "/api/agent(.*)",
   "/shopify(.*)",
   "/api/shopify(.*)",
+  "/api/cron(.*)",
+  "/privacy",
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
