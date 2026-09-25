@@ -183,6 +183,18 @@ export default function Dashboard() {
         <span className="pill cyan">{data.plan}</span>
         <span className="pill">{data.businessName}</span>
         <span className="pill" style={{ color: "var(--green)" }}>● live data</span>
+        {data.shopify && (
+          <span
+            className="pill"
+            title={data.shopify.shop}
+            style={{ color: data.shopify.connected && data.shopify.billing === "shopify_active" ? "var(--green)" : undefined }}
+          >
+            Shopify · {!data.shopify.connected ? "not connected"
+              : data.shopify.billing === "shopify_active" ? "connected, billing active"
+              : data.shopify.billing === "uninstalled" ? "app uninstalled"
+              : "connected, billing not started"}
+          </span>
+        )}
       </div>
 
       <div className="grid">
