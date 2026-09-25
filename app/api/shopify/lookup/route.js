@@ -1,7 +1,9 @@
 import { verifyRetell } from "../../../../lib/shopify/crypto";
 import { orgForAgent, accessTokenFor } from "../../../../lib/shopify/store";
 import { adminGraphql } from "../../../../lib/shopify/api";
-import { accessLog } from "../../../../lib/shopify/log";
+import { after } from "next/server";
+import { accessLog, log } from "../../../../lib/shopify/log";
+import { tagCallAccess } from "../../../../lib/shopify/retell";
 import { contactMatches, mapStatus, digits } from "../../../../lib/shopify/order";
 
 export const dynamic = "force-dynamic";
@@ -12,6 +14,12 @@ const EMPTY = {
   lookup_found: "false", lookup_verified: "false", order_status: "unknown",
   order_summary: "", tracking_company: "", tracking_number: "", cancelled: "false",
 };
+
+// Log the access and attach it to the Retell call after the response is sent.
+function audit(data) {
+  const entry = accessLog(data);
+  after(() => tagCallAccess(data.callId, entry).catch((e) => log("pcd_access_tag_failed", { callId: data.callId, message: e?.message })));
+}
 
 export async function POST(req) {
   const raw = await req.text();
@@ -40,10 +48,10 @@ export async function POST(req) {
       fulfillments(first: 5) { displayStatus trackingInfo(first: 1) { company number } } } } }`,
       { q: `name:#${orderNumber}` });
     const order = data?.orders?.nodes?.[0];
-    if (!order) { accessLog({ shop, callId, orderRef: orderNumber, result: "not_found" }); return Response.json(EMPTY); }
+    if (!order) { audit({ shop, callId, orderRef: orderNumber, result: "not_found" }); return Response.json(EMPTY); }
 
     const ok = contactMatches(contact, order.email || order.customer?.email, order.phone || order.customer?.phone);
-    accessLog({ shop, callId, orderRef: orderNumber, result: ok ? "verified" : "mismatch" });
+    audit({ shop, callId, orderRef: orderNumber, result: ok ? "verified" : "mismatch" });
     if (!ok) return Response.json({ ...EMPTY, lookup_found: "true" });
 
     const t = order.fulfillments?.[0]?.trackingInfo?.[0] || {};
@@ -55,7 +63,7 @@ export async function POST(req) {
       cancelled: order.cancelledAt ? "true" : "false",
     });
   } catch {
-    accessLog({ shop, callId, orderRef: orderNumber, result: "error" });
+    audit({ shop, callId, orderRef: orderNumber, result: "error" });
     return Response.json(EMPTY);
   }
 }
