@@ -40,7 +40,7 @@ button:disabled{opacity:.6;cursor:default}
 <h1>Client Connected</h1>
 <div id="app"><div class="card">Loading…</div></div>
 <p class="foot">Calls are recorded and kept 90 days. We read order status and match the caller's email or phone to the order; we never store your order data.
-<a href="https://www.client-connected.com/privacy" target="_blank" rel="noreferrer">Privacy policy</a></p>
+<a href="https://portal.client-connected.com/privacy" target="_blank" rel="noreferrer">Privacy policy</a></p>
 </main>
 <script>
 (function(){
