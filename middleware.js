@@ -3,7 +3,14 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 // Everything except the sign-in flow requires authentication.
 // /api/agent/* is the exception: Retell calls it server-to-server with no session,
 // so it authenticates itself (Retell signature + live call verification) instead.
-const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/api/agent(.*)"]);
+// /shopify and /api/shopify/* run inside Shopify admin or are called by Shopify/Retell;
+// each authenticates itself (session token, webhook HMAC, or Retell signature).
+const isPublicRoute = createRouteMatcher([
+  "/sign-in(.*)",
+  "/api/agent(.*)",
+  "/shopify(.*)",
+  "/api/shopify(.*)",
+]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (!isPublicRoute(req)) {
