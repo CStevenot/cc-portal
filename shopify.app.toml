@@ -1,0 +1,30 @@
+# Client Connected — public Shopify app, served from cc-portal (Dev Dashboard app 427955388417).
+# Deploy config with `shopify app deploy` (config push is no longer supported).
+client_id = "REPLACE_WITH_CLIENT_ID"
+name = "Client Connected"
+application_url = "https://portal.client-connected.com/shopify"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = false
+
+[access_scopes]
+# Shopify-managed install. read_all_orders pending an access request.
+scopes = "read_orders,read_fulfillments,read_customers"
+
+[auth]
+redirect_urls = ["https://portal.client-connected.com/shopify"]
+
+[webhooks]
+api_version = "2026-07"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/uninstalled"]
+  uri = "/api/shopify/webhooks"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+  uri = "/api/shopify/webhooks"
+
+[pos]
+embedded = false

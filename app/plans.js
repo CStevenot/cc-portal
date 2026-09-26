@@ -2,9 +2,10 @@
 // Kept in its own module (not a route file) because Next.js restricts what a
 // route.js may export — only HTTP handlers and specific config keys.
 //
+// Elite is PROOF's plan (added 2026-09-24; it was missing, which locked playback).
 // Burke's pilot is included so he gets the full experience during the trial.
 // Anything not listed here (e.g. "Starter") sees the locked/upsell state.
-export const PLANS_WITH_RECORDINGS = ["pro", "growth", "scale", "enterprise", "pilot"];
+export const PLANS_WITH_RECORDINGS = ["pro", "growth", "scale", "elite", "enterprise", "pilot"];
 
 export function planAllowsRecordings(plan) {
   return PLANS_WITH_RECORDINGS.includes(String(plan || "").trim().toLowerCase());

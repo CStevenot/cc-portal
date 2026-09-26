@@ -94,7 +94,16 @@ export async function GET() {
         });
     }
     const answeredCalls = calls.filter((c) => durSec(c) > 8).length;
+    // Shopify connection status for merchants billed through the Shopify app.
+    const shopify = meta.shopDomain
+      ? {
+          shop: meta.shopDomain,
+          connected: !!((org.privateMetadata || {}).shopify || {}).tokenEnc,
+          billing: meta.billing || "not_started",
+        }
+      : null;
     return Response.json({
+      shopify,
       plan,
       included,
       businessName,
