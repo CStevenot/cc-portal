@@ -12,7 +12,8 @@ const sent = new Set();
 
 export async function POST(req) {
   const raw = await req.text();
-  const key = process.env.RETELL_API_KEY;
+  // Retell signs webhooks with the API key marked "Webhook" in its dashboard.
+  const key = process.env.RETELL_WEBHOOK_KEY || process.env.RETELL_API_KEY;
   if (!key || !verifyRetell(raw, req.headers.get("x-retell-signature"), key)) {
     return Response.json({ error: "bad_signature" }, { status: 401 });
   }
