@@ -147,3 +147,22 @@ input[type="number"] { width: 90px; }
 .savemsg.bad { color: var(--amber); }
 
 @media (max-width: 760px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* ---- Calls / Chats tabs ---- */
+.tabs { display: flex; gap: 6px; margin-bottom: 22px; border-bottom: 1px solid var(--line); }
+.tab { background: none; border: none; border-bottom: 2px solid transparent; color: var(--mute); font-weight: 800; font-size: 14px; padding: 10px 16px; cursor: pointer; margin-bottom: -1px; }
+.tab:hover { color: var(--white); }
+.tab.on { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+/* ---- Chats ---- */
+.chatrow { cursor: pointer; }
+.chatrow:hover td { background: rgba(255,255,255,.02); }
+.chatsum { max-width: 380px; color: var(--mute); font-size: 13px; line-height: 1.4; }
+.chatdetail { background: #0a1a30; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 14px; }
+.leadgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px 18px; }
+.leadgrid > div { display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
+.leadgrid .lab { color: var(--mute); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.transcript { display: flex; flex-direction: column; gap: 8px; max-height: 420px; overflow-y: auto; }
+.msg { display: flex; gap: 10px; font-size: 14px; line-height: 1.45; }
+.msg .who { flex: 0 0 60px; color: var(--mute); font-size: 12px; font-weight: 800; padding-top: 2px; }
+.msg.user .who { color: var(--cyan); }

@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useMemo, useState } from "react";
+import ChatsPanel from "./ChatsPanel";
 
 const COLS = [
   { k: "ts", label: "Date & Time" },
@@ -56,6 +57,7 @@ export default function Dashboard() {
   const [cfgOpen, setCfgOpen] = useState(false);
   const [playingId, setPlayingId] = useState(null);
   const [showUpsell, setShowUpsell] = useState(false);
+  const [tab, setTab] = useState("calls"); // calls | chats
 
   useEffect(() => setPrefs(loadPrefs()), []);
   useEffect(() => {
@@ -197,6 +199,12 @@ export default function Dashboard() {
         )}
       </div>
 
+      <div className="tabs" role="tablist">
+        <button role="tab" aria-selected={tab === "calls"} className={"tab" + (tab === "calls" ? " on" : "")} onClick={() => setTab("calls")}>Calls</button>
+        <button role="tab" aria-selected={tab === "chats"} className={"tab" + (tab === "chats" ? " on" : "")} onClick={() => setTab("chats")}>Chats</button>
+      </div>
+
+      {tab === "chats" ? <ChatsPanel /> : (<>
       <div className="grid">
         <div className="kpi"><div className="lab">Calls answered</div><div className="val green">{data.calls}</div><div className="sub">24/7, every one picked up</div></div>
         <div className="kpi"><div className="lab">Leads captured</div><div className="val cyan">{data.leads}</div><div className="sub">name · number · need</div></div>
@@ -312,6 +320,8 @@ export default function Dashboard() {
           {rows.length === 0 && <div className="nores">No calls match your search.</div>}
         </div>
       </div>
+
+      </>)}
 
       <div className="foot">Client Connected · customer portal</div>
     </div>
