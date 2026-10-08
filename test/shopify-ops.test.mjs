@@ -42,3 +42,29 @@ describe("data request", () => {
     expect(r).toContain("stores no Shopify order data");
   });
 });
+
+import { clampToCap, usageAlert } from "../lib/shopify/usage.js";
+
+describe("usage cap", () => {
+  it("bills the full amount when it fits under the cap", () => {
+    expect(clampToCap(300, 2500, 0)).toEqual({ bill: 300, unbilled: 0, remaining: 2500, clipped: false });
+  });
+  it("bills only what fits and reports the rest", () => {
+    expect(clampToCap(3000.5, 2500, 100)).toEqual({ bill: 2400, unbilled: 600.5, remaining: 2400, clipped: true });
+  });
+  it("bills nothing when the cap is already used", () => {
+    expect(clampToCap(50, 2500, 2500)).toEqual({ bill: 0, unbilled: 50, remaining: 0, clipped: true });
+  });
+  it("alerts ops only for clipped or failed shops", () => {
+    expect(usageAlert("2026-10", [{ shop: "a", amount: 0 }])).toBeNull();
+    const a = usageAlert("2026-10", [
+      { shop: "a", billed: 2400, unbilled: 600.5, overMinutes: 4616, clipped: true },
+      { shop: "b", error: "no access token", minutes: 900, amount: 260 },
+      { shop: "c", amount: 10, billed: 10 },
+    ]);
+    expect(a.subject).toContain("2 shop(s)");
+    expect(a.text).toContain("a: hit the usage cap. Billed $2400, unbilled $600.5");
+    expect(a.text).toContain("b: ERROR no access token");
+    expect(a.text).not.toContain("- c:");
+  });
+});
