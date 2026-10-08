@@ -14,7 +14,7 @@ export async function POST(req) {
   try {
     const t = await retellTool(req);
     if (t.unauthorized) return unauthorized();
-    if (!t.ok) return Response.json(EMPTY);
+    if (!t.ok) return Response.json({ ...EMPTY, reason: t.reason });
     const q = productSearchQuery(t.args.query);
     if (!q) return Response.json(EMPTY);
     const data = await adminGraphql(t.shop, t.token, `query($q: String!) { products(first: 5, query: $q, sortKey: RELEVANCE) { nodes {
@@ -24,6 +24,6 @@ export async function POST(req) {
     return Response.json(out);
   } catch (e) {
     log("product_search_error", { message: e?.message });
-    return Response.json(EMPTY);
+    return Response.json({ ...EMPTY, reason: "error" });
   }
 }

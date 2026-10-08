@@ -14,7 +14,7 @@ export async function POST(req) {
   try {
     const t = await retellTool(req);
     if (t.unauthorized) return unauthorized();
-    if (!t.ok) return Response.json(EMPTY);
+    if (!t.ok) return Response.json({ ...EMPTY, reason: t.reason });
     const codes = approvedCodes(t.meta);
     if (!codes.length) return Response.json(EMPTY);
     const live = await Promise.all(codes.map((c) => getCodeDiscount(t.shop, t.token, c).catch(() => null)));
