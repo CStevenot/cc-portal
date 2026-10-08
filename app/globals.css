@@ -166,3 +166,24 @@ input[type="number"] { width: 90px; }
 .msg { display: flex; gap: 10px; font-size: 14px; line-height: 1.45; }
 .msg .who { flex: 0 0 60px; color: var(--mute); font-size: 12px; font-weight: 800; padding-top: 2px; }
 .msg.user .who { color: var(--cyan); }
+
+/* This month: usage per medium */
+.usagehead { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.usagehead h3 { margin-bottom: 0; }
+.mute { color: var(--mute); font-size: 13px; }
+.small { font-size: 12px; line-height: 1.5; }
+.urows { display: grid; gap: 16px; }
+.urow { display: grid; grid-template-columns: 130px 1fr 90px; gap: 16px; align-items: center; }
+.umed { font-weight: 700; }
+.ucharge { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.uinfo b { color: #fff; }
+.bar > i.over { background: linear-gradient(90deg, var(--amber), #f7b267); }
+.utotal { border-top: 1px solid var(--line); margin-top: 18px; padding-top: 14px; display: grid; gap: 6px; }
+.utotal > div { display: flex; justify-content: space-between; color: var(--mute); font-variant-numeric: tabular-nums; }
+.utotal > div.grand { color: #fff; font-weight: 800; font-size: 17px; }
+.utotal p { margin-top: 6px; }
+@media (max-width: 640px) {
+  .urow { grid-template-columns: 1fr auto; }
+  .urow .ubody { grid-column: 1 / -1; grid-row: 2; }
+  .uinfo { flex-direction: column; gap: 2px; }
+}
