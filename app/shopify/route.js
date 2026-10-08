@@ -39,16 +39,16 @@ button:disabled{opacity:.6;cursor:default}
 <body><main>
 <h1>Client Connected</h1>
 <div id="app"><div class="card">Loading…</div></div>
-<p class="foot">Calls are recorded and kept 90 days. We read order status and match the caller's email or phone to the order; we never store your order data.
+<p class="foot">Calls are recorded and kept 90 days. We read order status only after matching the caller's email or phone to the order, read live product prices and the discount codes you approve, and create a draft order only when a caller asks for a checkout link. We never store your order or customer data.
 <a href="https://portal.client-connected.com/privacy" target="_blank" rel="noreferrer">Privacy policy</a></p>
 </main>
 <script>
 (function(){
   var app = document.getElementById("app");
   function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
-  async function api(path){
+  async function api(path, body){
     var t = await window.shopify.idToken();
-    var r = await fetch(path,{method:"POST",headers:{Authorization:"Bearer "+t}});
+    var r = await fetch(path,{method:"POST",headers:{Authorization:"Bearer "+t,"Content-Type":"application/json"},body:JSON.stringify(body||{})});
     if(!r.ok) throw new Error(path+" "+r.status);
     return r.json();
   }
@@ -63,13 +63,42 @@ button:disabled{opacity:.6;cursor:default}
     app.innerHTML =
       '<div class="card"><h2>'+esc(s.businessName)+'</h2><p class="muted">AI phone agents that answer your customers 24/7: order status, returns, warranty claims, and sales.</p></div>'+
       '<div class="card"><h3>Phone agents</h3><p>'+esc(agents)+'</p></div>'+
-      '<div class="card"><h3>Subscription</h3>'+sub+'</div>';
+      '<div class="card"><h3>Subscription</h3>'+sub+'</div>'+
+      '<div class="card" id="promos"><h3>Promotions your agent may offer</h3><p class="muted">Loading your active discount codes…</p></div>';
+    loadPromos();
     var b = document.getElementById("sub");
     if(b) b.onclick = async function(){
       b.disabled = true; b.textContent = "Opening…";
       try { var r = await api("/api/shopify/billing"); window.open(r.confirmationUrl, "_top"); }
       catch(e){ fail("Couldn't start the subscription. Try again, or contact support@client-connected.com."); }
     };
+  }
+  function promoHtml(r){
+    var head = '<h3>Promotions your agent may offer</h3><p class="muted">Your agent offers only the codes you check here, and only while Shopify shows them as active. It never invents discounts.</p>';
+    if(!r.discounts.length) return head+'<p style="margin-top:12px">No active discount codes in your store. Create one in Discounts, then reload this page.</p>';
+    var rows = r.discounts.map(function(d){
+      var on = r.approved.indexOf(String(d.code).toUpperCase())>=0 ? " checked" : "";
+      return '<label style="display:block;margin-top:10px"><input type="checkbox" class="pc" value="'+esc(d.code)+'"'+on+'> <strong>'+esc(d.code)+'</strong> <span class="muted">'+esc(d.summary||d.title)+'</span></label>';
+    }).join("");
+    return head+rows+'<button id="psave">Save</button> <span id="pmsg" class="muted"></span>';
+  }
+  function showPromos(r, msg){
+    var box = document.getElementById("promos");
+    box.innerHTML = promoHtml(r);
+    var m = document.getElementById("pmsg");
+    if(m && msg) m.textContent = msg;
+    var s = document.getElementById("psave");
+    if(s) s.onclick = async function(){
+      s.disabled = true;
+      var codes = Array.prototype.slice.call(document.querySelectorAll(".pc:checked")).map(function(x){return x.value;});
+      try { showPromos(await api("/api/shopify/promo-settings",{save:codes}), "Saved."); }
+      catch(e){ s.disabled = false; document.getElementById("pmsg").textContent = "Couldn't save. Try again."; }
+    };
+  }
+  function loadPromos(){
+    api("/api/shopify/promo-settings").then(function(r){ showPromos(r); }).catch(function(){
+      document.getElementById("promos").innerHTML = '<h3>Promotions your agent may offer</h3><p class="muted">Couldn\\'t load your discount codes. Refresh to try again.</p>';
+    });
   }
   api("/api/shopify/session").then(render).catch(function(){
     fail("We couldn't load your account. Refresh, or contact support@client-connected.com.");
