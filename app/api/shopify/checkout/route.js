@@ -44,7 +44,8 @@ export async function POST(req) {
       input: {
         lineItems,
         discountCodes,
-        tags: ["client-connected-agent"],
+        // The channel tag lets the portal count checkout links texted during calls.
+        tags: ["client-connected-agent", `client-connected-${t.channel || "unknown"}`],
         note: `Created by the Client Connected phone agent${t.callId ? ` (call ${t.callId})` : ""}.`,
         sourceName: "client-connected",
       },
