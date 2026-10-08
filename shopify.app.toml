@@ -21,11 +21,11 @@ api_version = "2026-07"
 
   [[webhooks.subscriptions]]
   topics = ["app/uninstalled"]
-  uri = "/api/shopify/webhooks"
+  uri = "https://portal.client-connected.com/api/shopify/webhooks"
 
   [[webhooks.subscriptions]]
   compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
-  uri = "/api/shopify/webhooks"
+  uri = "https://portal.client-connected.com/api/shopify/webhooks"
 
 [pos]
 embedded = false
