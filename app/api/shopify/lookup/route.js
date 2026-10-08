@@ -23,7 +23,9 @@ function audit(data) {
 
 export async function POST(req) {
   const raw = await req.text();
-  if (!verifyRetell(raw, req.headers.get("x-retell-signature"), process.env.RETELL_API_KEY)) {
+  // Retell signs custom-function calls with the API key marked "Webhook" in its dashboard.
+  const key = process.env.RETELL_WEBHOOK_KEY || process.env.RETELL_API_KEY;
+  if (!key || !verifyRetell(raw, req.headers.get("x-retell-signature"), key)) {
     return Response.json({ error: "unauthorized" }, { status: 401 });
   }
   let body;
