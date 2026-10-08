@@ -10,7 +10,8 @@ automatically_update_urls_on_dev = false
 
 [access_scopes]
 # Shopify-managed install. read_all_orders pending an access request.
-scopes = "read_orders,read_fulfillments,read_customers"
+# Day one: order lookup, product/price search, merchant-approved promos, draft-order checkout links.
+scopes = "read_orders,read_fulfillments,read_customers,read_products,read_discounts,write_draft_orders"
 
 [auth]
 redirect_urls = ["https://portal.client-connected.com/shopify"]
