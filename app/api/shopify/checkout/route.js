@@ -19,7 +19,7 @@ export async function POST(req) {
   try {
     t = await retellTool(req);
     if (t.unauthorized) return unauthorized();
-    if (!t.ok) return Response.json(FAIL("store_not_connected"));
+    if (!t.ok) return Response.json(FAIL(t.reason || "store_not_connected"));
 
     const lineItems = parseItems(t.args.items);
     if (!lineItems) return Response.json(FAIL("no_valid_items"));
