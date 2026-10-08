@@ -74,8 +74,8 @@ describe("checkout sms + plan", () => {
     const s = checkoutSms("PROOF", "https://x.myshopify.com/1/invoices/abc");
     expect(s).toBe("PROOF: here's the checkout link you asked for: https://x.myshopify.com/1/invoices/abc Reply STOP to opt out.");
   });
-  it("defaults the Shopify plan to Pro at $549 + $0.65/min", () => {
+  it("defaults the Shopify plan to Pro at $549 + $0.65/min, $2,500 cap", () => {
     for (const k of ["PLAN_NAME", "PLAN_PRICE", "PLAN_INCLUDED_MIN", "PLAN_OVERAGE_PER_MIN", "PLAN_USAGE_CAP"]) delete process.env[k];
-    expect(planFromEnv()).toEqual({ name: "Client Connected Pro", amount: 549, includedMinutes: 500, overagePerMin: 0.65, usageCap: 500 });
+    expect(planFromEnv()).toEqual({ name: "Client Connected Pro", amount: 549, includedMinutes: 500, overagePerMin: 0.65, usageCap: 2500 });
   });
 });
