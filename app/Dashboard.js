@@ -2,6 +2,7 @@
 
 import { Fragment, useEffect, useMemo, useState } from "react";
 import ChatsPanel from "./ChatsPanel";
+import UsagePanel from "./UsagePanel";
 
 const COLS = [
   { k: "ts", label: "Date & Time" },
@@ -133,9 +134,6 @@ export default function Dashboard() {
   if (state === "loading" || !data)
     return <div className="wrap"><div className="notice">Loading your dashboard…</div></div>;
 
-  const inc = data.included || 500;
-  const used = data.minutesUsed || 0;
-
   const canPlay = !!data.canPlayRecordings;
 
   const cell = (r, k) => {
@@ -199,6 +197,8 @@ export default function Dashboard() {
         )}
       </div>
 
+      <UsagePanel />
+
       <div className="tabs" role="tablist">
         <button role="tab" aria-selected={tab === "calls"} className={"tab" + (tab === "calls" ? " on" : "")} onClick={() => setTab("calls")}>Calls</button>
         <button role="tab" aria-selected={tab === "chats"} className={"tab" + (tab === "chats" ? " on" : "")} onClick={() => setTab("chats")}>Chats</button>
@@ -210,15 +210,6 @@ export default function Dashboard() {
         <div className="kpi"><div className="lab">Leads captured</div><div className="val cyan">{data.leads}</div><div className="sub">name · number · need</div></div>
         <div className="kpi"><div className="lab">Appointments booked</div><div className="val">{data.appointments}</div><div className="sub">on the calendar</div></div>
         <div className="kpi"><div className="lab">Avg call length</div><div className="val">{fmt(data.avgSec)}</div><div className="sub">across answered calls</div></div>
-      </div>
-
-      <div className="usage">
-        <h3>Minutes used</h3>
-        <div className="bar"><i style={{ width: Math.min(100, (used / inc) * 100) + "%" }} /></div>
-        <div className="uinfo">
-          <span><b style={{ color: "#fff" }}>{used}</b> of {inc} included minutes used</span>
-          <span>{inc - used >= 0 ? inc - used + " left" : used - inc + " over"} · resets monthly</span>
-        </div>
       </div>
 
       {showUpsell && (
