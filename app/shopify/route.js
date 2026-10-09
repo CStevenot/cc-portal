@@ -39,7 +39,7 @@ button:disabled{opacity:.6;cursor:default}
 <body><main>
 <h1>Client Connected</h1>
 <div id="app"><div class="card">Loading…</div></div>
-<p class="foot">Calls are recorded and kept 90 days. We read order status only after matching the caller's email or phone to the order, read live product prices and the discount codes you approve, and create a draft order only when a caller asks for a checkout link. We never store your order or customer data.
+<p class="foot">Calls are recorded and kept 90 days. We read order status only after matching the caller's email or phone to the order, read live product prices and the discount codes you approve, and create a draft order only when a caller asks for a checkout link, and read back only the order placed from that link, on the same call, to confirm it. We never store your order or customer data.
 <a href="https://portal.client-connected.com/privacy" target="_blank" rel="noreferrer">Privacy policy</a></p>
 </main>
 <script>
